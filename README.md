@@ -6,7 +6,7 @@
 
 # ESTO ES UN TEMPLATE, COMPLETAR LO QUE HAGA FALTA, ELIMINAR LO QUE SOBRE (INCLUIDA ESTA LÍNEA)
 
-## Alumno: (Nombre Apellido) - (Padrón) - (Mail)
+## Alumno: Maximiliano Fittipaldi - 111676 - mafittipaldi@fi.uba.ar
 
 - Para compilar:
 
