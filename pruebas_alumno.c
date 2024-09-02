@@ -100,6 +100,9 @@ void seEncuentraElPokemonBuscado()
 		&& poke4->fuerza == poke2.fuerza)
 		son_iguales = true;
 	pa2m_afirmar( son_iguales, "Pokemon encontrado");
+
+	poke4 = pokedex_buscar_pokemon(pokedex, "NOEXISTE");
+	pa2m_afirmar( poke4 == NULL, "NULL: no se ha encontrado al pokemon que no existe");
 	pokedex_destruir(pokedex);
 }
 int main()

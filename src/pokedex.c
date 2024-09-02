@@ -42,6 +42,8 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 	pokedex->cantidad++;
 	if(pokedex->lista == NULL){
 		pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
+		pokedex->lista->poke = pokemon;
+		pokedex->lista->siguiente = NULL;
 	} else {
 		struct nodo_pokemon *direccion_lista = pokedex->lista;
 		struct nodo_pokemon *nuevo_nodo = calloc(1, sizeof(struct nodo_pokemon));
@@ -63,18 +65,12 @@ const struct pokemon *pokedex_buscar_pokemon(struct pokedex *pokedex,
 	bool encontrado = false;
 	const struct pokemon *buscado = NULL;
 	const struct nodo_pokemon *nodo_actual = pokedex->lista;
-	if(pokedex->lista != NULL){
+	while(nodo_actual != NULL && !encontrado){
 		if(strcmp(nodo_actual->poke.nombre, nombre) == 0){
-			buscado = &(pokedex->lista->poke);
+			buscado = &(nodo_actual->poke);
 			encontrado = true;
 		}
-		while(nodo_actual->siguiente != NULL && !encontrado){
-			nodo_actual = nodo_actual->siguiente;
-			if(strcmp(nodo_actual->poke.nombre, nombre) == 0){
-				buscado = &(nodo_actual->poke);
-				encontrado = true;
-			}
-		}
+		nodo_actual = nodo_actual->siguiente;
 	}
 	return buscado;
 }
