@@ -1,4 +1,5 @@
 #include "pokedex.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,14 +43,42 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 	pokedex->cantidad++;
 	if(pokedex->lista == NULL){
 		pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
-		pokedex->lista->poke = pokemon;
-		pokedex->lista->siguiente = NULL;
+		if(pokedex->lista != NULL){
+			pokedex->lista->poke = pokemon;
+			pokedex->lista->siguiente = NULL;
+		}
 	} else {
-		struct nodo_pokemon *direccion_lista = pokedex->lista;
+		struct nodo_pokemon *direccion_lista = NULL;
+		struct nodo_pokemon nodo_aux = {.poke = __nulo, .siguiente = NULL};
+		struct nodo_pokemon *nodo_actual = pokedex->lista;
 		struct nodo_pokemon *nuevo_nodo = calloc(1, sizeof(struct nodo_pokemon));
-		nuevo_nodo->poke = pokemon;
-		pokedex->lista = nuevo_nodo;
-		nuevo_nodo->siguiente = direccion_lista;
+		if (nuevo_nodo == NULL) return false;
+
+		bool posicionado = false;
+
+		while(!posicionado && nodo_actual != NULL){
+			if(nodo_actual->siguiente == NULL){
+				if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0){
+					nuevo_nodo->poke = pokemon;
+					nodo_actual->siguiente = nuevo_nodo;
+				} else {
+					nodo_aux.poke = nodo_actual->poke;
+					nodo_actual->poke = pokemon;
+					nuevo_nodo->poke = nodo_aux.poke;
+					nodo_actual->siguiente = nuevo_nodo;
+				}
+				posicionado = true;
+			} else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0
+				&& strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
+					nuevo_nodo->poke = pokemon;
+					direccion_lista = nodo_actual->siguiente;
+					nodo_actual->siguiente = nuevo_nodo;
+					nuevo_nodo->siguiente = direccion_lista;
+					posicionado = true;
+			}
+			if(!posicionado)
+				nodo_actual = nodo_actual->siguiente;
+		}
 	}
 	return true;
 }
@@ -80,7 +109,15 @@ size_t pokedex_iterar_pokemones(struct pokedex *pokedex,
 				bool (*funcion)(struct pokemon *, void *),
 				void *ctx)
 {
-	return 0;
+	struct nodo_pokemon *nodo_actual = pokedex->lista;
+	size_t pokemones_iterados = 0;
+	bool seguir_iterando = true;
+	while(nodo_actual != NULL && seguir_iterando){
+		seguir_iterando = funcion(&nodo_actual->poke, ctx);
+		nodo_actual = nodo_actual->siguiente;
+		pokemones_iterados++;
+	}
+	return pokemones_iterados;
 }
 
 void pokedex_destruir(struct pokedex *pokedex)
@@ -97,5 +134,4 @@ void pokedex_destruir(struct pokedex *pokedex)
 		free(nodo_a_borrar);
 	}
 	free(pokedex);
-	
 }
