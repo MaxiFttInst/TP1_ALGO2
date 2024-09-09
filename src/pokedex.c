@@ -68,6 +68,17 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 					nodo_actual->siguiente = nuevo_nodo;
 				}
 				posicionado = true;
+			} else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) > 0
+				&& strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
+					direccion_lista = nodo_actual->siguiente;
+					nodo_aux.poke = nodo_actual->poke;
+					nodo_actual->poke = pokemon;
+					nuevo_nodo->poke = nodo_aux.poke;
+					nodo_actual->siguiente = nuevo_nodo;
+					nuevo_nodo->siguiente = direccion_lista;
+					posicionado = true;
+					
+
 			} else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0
 				&& strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
 					nuevo_nodo->poke = pokemon;
@@ -131,6 +142,7 @@ void pokedex_destruir(struct pokedex *pokedex)
 	while(nodo_actual != NULL){
 		nodo_a_borrar = nodo_actual;
 		nodo_actual = nodo_a_borrar->siguiente;
+		free(nodo_a_borrar->poke.nombre);
 		free(nodo_a_borrar);
 	}
 	free(pokedex);

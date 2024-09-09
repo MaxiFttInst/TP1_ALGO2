@@ -27,7 +27,7 @@ bool leer_caracter(const char *str, void *ctx)
 int main(int argc, char const *argv[])
 {
 	struct archivo_csv *archivo =
-		abrir_archivo_csv("ejemplos/ejemplo.csv", ';');
+		abrir_archivo_csv("ejemplos/correcto.txt", ';');
 
 	bool (*funciones[3])(const char *, void *) = { crear_string_nuevo,
 						       leer_caracter,
@@ -44,6 +44,7 @@ int main(int argc, char const *argv[])
 		       caracter);
 		free(string);
 	}
+	// free(string);
 
 	printf("Fin de archivo\n");
 

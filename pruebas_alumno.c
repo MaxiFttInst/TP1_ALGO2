@@ -2,6 +2,16 @@
 #include "src/csv.h"
 #include "src/pokedex.h"
 #include <string.h>
+
+char *asignar_nombre(char *nombre){
+	char *ptr = calloc(1, sizeof(char) * (strlen(nombre) + 1));
+	strcpy(ptr, nombre);
+	return ptr;
+}
+bool mostrar_poke(struct pokemon *poke, void *ctx){
+	printf("%s\n", poke->nombre);
+	return true;
+}
 void abrirUnArchivoInexistenteDebeRetornarNull()
 {
 	struct archivo_csv *archivo =
@@ -58,7 +68,7 @@ void seAgregaUnPokemon()
 {
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke = {
-		.nombre = "Charmander",
+		.nombre = asignar_nombre("Charmander"),
 		.tipo = TIPO_ELECTRICO,
 		.fuerza = 45,
 		.destreza = 10,
@@ -73,21 +83,21 @@ void seCuentanLosPokemones()
 {
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke1 = {
-		.nombre = "Charmander",
+		.nombre = asignar_nombre("Charmander"),
 		.tipo = TIPO_ELECTRICO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke2 = {
-		.nombre = "Algo",
+		.nombre = asignar_nombre("Algo"),
 		.tipo = TIPO_ROCA,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke3 = {
-		.nombre = "Igna",
+		.nombre = asignar_nombre("Igna"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
@@ -103,49 +113,49 @@ void seEncuentraElPokemonBuscado()
 {
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke1 = {
-		.nombre = "Charmander",
+		.nombre = asignar_nombre("Charmander"),
 		.tipo = TIPO_ELECTRICO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke2 = {
-		.nombre = "Algo",
+		.nombre = asignar_nombre("Algo"),
 		.tipo = TIPO_ROCA,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke3 = {
-		.nombre = "Igna",
+		.nombre = asignar_nombre("Igna"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke4 = {
-		.nombre = "uyiouyuio",
+		.nombre = asignar_nombre("uyiouyuio"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke5 = {
-		.nombre = "fdghdfg",
+		.nombre = asignar_nombre("fdghdfg"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke6 = {
-		.nombre = "hkljl",
+		.nombre = asignar_nombre("hkljl"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke7 = {
-		.nombre = "asdfasf",
+		.nombre = asignar_nombre("asdfasf"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
@@ -175,6 +185,69 @@ void seEncuentraElPokemonBuscado()
 	pa2m_afirmar( poke8 == NULL, "NULL: no se ha encontrado al pokemon que no existe");
 	pokedex_destruir(pokedex);
 }
+
+void seMuestranLosPokes()
+{
+	struct pokedex *pokedex = pokedex_crear();
+	struct pokemon poke1 = {
+		.nombre = asignar_nombre("Charmander"),
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke2 = {
+		.nombre = asignar_nombre("Algo"),
+		.tipo = TIPO_ROCA,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke3 = {
+		.nombre = asignar_nombre("Igna"),
+		.tipo = TIPO_FUEGO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke4 = {
+		.nombre = asignar_nombre("uyiouyuio"),
+		.tipo = TIPO_FUEGO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke5 = {
+		.nombre = asignar_nombre("fdghdfg"),
+		.tipo = TIPO_FUEGO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke6 = {
+		.nombre = asignar_nombre("hkljl"),
+		.tipo = TIPO_FUEGO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke7 = {
+		.nombre = asignar_nombre("Asdfasf"),
+		.tipo = TIPO_FUEGO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	pokedex_agregar_pokemon(pokedex, poke1);
+	pokedex_agregar_pokemon(pokedex, poke3);
+	pokedex_agregar_pokemon(pokedex, poke2);
+	pokedex_agregar_pokemon(pokedex, poke4);
+	pokedex_agregar_pokemon(pokedex, poke5);
+	pokedex_agregar_pokemon(pokedex, poke6);
+	pokedex_agregar_pokemon(pokedex, poke7);
+	pokedex_iterar_pokemones(pokedex, mostrar_poke, NULL);
+	pokedex_destruir(pokedex);
+}
 int main()
 {
 	pa2m_nuevo_grupo("Pruebas de archivos CSV");
@@ -184,5 +257,6 @@ int main()
 	seAgregaUnPokemon();
 	seCuentanLosPokemones();
 	seEncuentraElPokemonBuscado();
+	seMuestranLosPokes();
 	return pa2m_mostrar_reporte();
 }

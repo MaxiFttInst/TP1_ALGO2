@@ -13,6 +13,9 @@ pruebas_alumno: src/*.c pruebas_alumno.c
 valgrind-ejemplo: ejemplo
 	valgrind $(VALGRIND_FLAGS) ./ejemplo
 
+valgrind-tp1: tp1
+	valgrind $(VALGRIND_FLAGS) ./tp1 "ejemplos/pokedex.csv"
+
 ejemplo: src/*.c ejemplo.c
 	$(CC) $(CFLAGS) src/*.c ejemplo.c -o ejemplo
 
