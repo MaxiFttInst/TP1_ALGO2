@@ -4,25 +4,23 @@
 
 # TP1
 
-# ESTO ES UN TEMPLATE, COMPLETAR LO QUE HAGA FALTA, ELIMINAR LO QUE SOBRE (INCLUIDA ESTA LÍNEA)
-
 ## Alumno: Maximiliano Fittipaldi - 111676 - mafittipaldi@fi.uba.ar
 
-- Para compilar:
+- Para ejecutar pruebas:
 
 ```bash
-línea de compilación
+make
 ```
 
-- Para ejecutar:
+- Para ejecutar tp1:
 
 ```bash
-línea de ejecución
+make clean && make valgrind-tp1
 ```
 
-- Para ejecutar con valgrind:
+- Para ejecutar ejemplo:
 ```bash
-línea con valgrind
+make clean && make valgrind-ejemplo
 ```
 
 ---
@@ -62,6 +60,8 @@ struct pokedex *pokedex_crear()
 	return nueva_pdex;
 }
 ```
+
+##### Complejidad
 Dado que no recibe parámetros y la inicialización siempre es igual, la complejidad
 resulta en O(1)
 
@@ -169,4 +169,57 @@ nos ayuda a no perder el registro del resto de nodos.
 En este caso, estamos contemplando lo siguiente:
 pokemon.nombre < pokemon_actual.nombre < suguiente_pokemon.nombre.
 Muy parecido al anterior, de hecho, igual, sólo que sin el otro nodo auxiliar.
+
+##### Cierre
+Por último si no pudimos hacer alguna de las operaciones anteriores, vamos
+al siguiente nodo.
+```c
+
+	if(!posicionado)
+		nodo_actual = nodo_actual->siguiente;
+	}
+}
+	return true;
+```
+##### Complejidad
+
+Es complejidad O(n) porque, en el peor de los casos, se recorre toda la lista.
+
+#### pokedex_cantidad_pokemones: O(1)
+Simplemente toma la cantidad almacenada
+##### Complejidad
+Es O(1), dado que, en cualquier caso, sólo debe leer una variable.
+
+#### pokedex_buscar_pokemon: O(n)
+
+##### Complejidad
+Es O(n), pues necesita iterar hasta encontrar al pokemon.
+
+#### pokedex_iterar_pokemones: O(n)
+
+##### Complejidad
+Es O(n). Si una función no frena el bucle, se iteran todos los pokemones.
+
+
+#### pokedex_destruir: O(n)
+
+
+##### Complejidad
+Es O(n), porque debe pasar por todos los nodos para liberarlos.
+
+#### ¿Por qué se eligió esta estructura?
+Dado que no se trata de un arreglo dinámico, sino que cada nodo apunta a su siguiente,
+sólo hacemos el pedido de memoria para insertar un nuevo nodo, por ende,
+*1)* el sistema operativo no debe buscar un trozo de memoria contigua sin utilizar
+para añadir nuevos pokemones.
+Por otro lado,  *2)* el orenamiento no requiere de hacer desplazamientos,
+es decir, si tuviéramos un arreglo dinámico y quisiéramos insertar un elemento _e_ en _x_
+posición (exceptuando el final), deberíamos desplazar el resto de
+los elementos delante de _e_ _i_+1 posiciones, donde _i_ es la posición actual de cada
+elemento.
+
+### CSV
+TODO:
+- explicar csv
+- hacer dibujos
 
