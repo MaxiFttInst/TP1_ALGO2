@@ -34,7 +34,7 @@ bool leer_caracter(const char *str, void *ctx)
 	return true;
 }
 bool contar_por_tipo(struct pokemon *poke, void *ctx){
-	printf("Nombre: %s \n", poke->nombre);
+	// printf("Nombre: %s \n", poke->nombre);
 	switch (poke->tipo) {
 		case 'A':
 			(((struct cantidad_tipos*)ctx)->agua)++;

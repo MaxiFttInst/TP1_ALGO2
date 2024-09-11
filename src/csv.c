@@ -26,12 +26,14 @@ struct archivo_csv *abrir_archivo_csv(const char *nombre_archivo,
 size_t leer_linea_csv(struct archivo_csv *archivo, size_t columnas,
 		      bool (*funciones[])(const char *, void *), void *ctx[])
 {
+	if(archivo == NULL) return 0;
+
 	int cols_leidas = 0;
 	bool resultado = true;
 
 	char **lecturas= calloc(columnas, sizeof(char*));
 	for(int i = 0; i < columnas; i++)
-		lecturas[i] = calloc(100, sizeof(char*));
+		lecturas[i] = calloc(100, sizeof(char));
 	char parser[10] = "%[^;];";
 	parser[3] = archivo->separador;
 	parser[5] = archivo->separador;
@@ -56,6 +58,8 @@ size_t leer_linea_csv(struct archivo_csv *archivo, size_t columnas,
 
 void cerrar_archivo_csv(struct archivo_csv *archivo)
 {
+	if(archivo == NULL) return;
+
 	fclose(archivo->file);
 	free(archivo);
 }

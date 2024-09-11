@@ -3,6 +3,27 @@
 #include "src/pokedex.h"
 #include <string.h>
 
+bool leer_int(const char *str, void *ctx)
+{
+	return sscanf(str, "%d", (int *)ctx) == 1;
+}
+
+bool crear_string_nuevo(const char *str, void *ctx)
+{
+	char *nuevo = malloc(strlen(str) + 1);
+	if (nuevo == NULL)
+		return false;
+	strcpy(nuevo, str);
+	*(char **)ctx = nuevo;
+	return true;
+}
+
+bool leer_caracter(const char *str, void *ctx)
+{
+	*(char *)ctx = *(char *)str;
+	return true;
+}
+
 char *asignar_nombre(char *nombre){
 	char *ptr = calloc(1, sizeof(char) * (strlen(nombre) + 1));
 	strcpy(ptr, nombre);
@@ -18,45 +39,41 @@ void abrirUnArchivoInexistenteDebeRetornarNull()
 		abrir_archivo_csv("noexiste/noexiste/noexiste/no", ';');
 	pa2m_afirmar(archivo == NULL, "El archivo no existe y se retorna NULL");
 }
-// bool preservar(const char * s, void  * ctx);
-// bool convertir_a_tipo(const char * s, void  * ctx);
-// bool convertir_a_int(const char * s, void  * ctx);
-// void seAbreUnArchivo_seLeenLasLineas()
-// {
-//
-// 	struct archivo_csv *archivo =
-// 		abrir_archivo_csv("ejemplos/pokedex.csv", ';');
-// 	pa2m_afirmar(archivo != NULL, "Archivo abierto exitosamente");
-// 	
-// 	bool (*array_funcs[5])();
-// 	array_funcs[0] = preservar;
-// 	array_funcs[1] = convertir_a_tipo;
-// 	array_funcs[2] = convertir_a_int;
-// 	array_funcs[3] = convertir_a_int;
-// 	array_funcs[4] = convertir_a_int;
-// 	struct pokemon poke = {
-// 		.nombre = "Charmander",
-// 		.tipo = TIPO_ELECTRICO,
-// 		.fuerza = 45,
-// 		.destreza = 10,
-// 		.resistencia = 20
-// 	};
-// 	void *contexto[5] = {&(poke.nombre),&(poke.tipo),
-// 		&(poke.fuerza),&(poke.destreza),&(poke.resistencia)};
-//
-// 	size_t lineas = leer_linea_csv(archivo, 4, array_funcs, contexto);
-// 	bool linea_leida_bien = false;
-// 	if (strcmp(poke.nombre, "Pikachu") == 0
-// 		&& poke.tipo == TIPO_ELECTRICO
-// 		&& poke.resistencia == 20
-// 		&& poke.destreza == 15
-// 		&& poke.fuerza == 17)
-// 			linea_leida_bien = true;
-// 	pa2m_afirmar(linea_leida_bien, "Archivo abierto exitosamente");
-// 	pa2m_afirmar(lineas == 1, "Se leyo 1 linea");
-// 	cerrar_archivo_csv(archivo);
-//
-// }
+
+void seAbreUnArchivo_seLeenLasLineas()
+{
+
+	struct archivo_csv *archivo =
+		abrir_archivo_csv("ejemplos/pokedex.csv", ';');
+	pa2m_afirmar(archivo != NULL, "Archivo abierto exitosamente");
+	
+	bool (*funciones[5])(const char *, void *) = { crear_string_nuevo,
+						       leer_caracter,
+						       leer_int, leer_int, leer_int };
+	struct pokemon poke = {
+		.nombre = "Charmander",
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	void *contexto[5] = {&(poke.nombre),&(poke.tipo),
+		&(poke.fuerza),&(poke.destreza),&(poke.resistencia)};
+
+	size_t lineas = leer_linea_csv(archivo, 5, funciones, contexto);
+	pa2m_afirmar(lineas == 5, "Se leyo 1 linea con 5 columnas");
+	bool linea_leida_bien = false;
+	if (strcmp(poke.nombre, "Pikachu") == 0
+		&& poke.tipo == TIPO_ELECTRICO
+		&& poke.fuerza == 20
+		&& poke.destreza == 15
+		&& poke.resistencia == 17)
+			linea_leida_bien = true;
+	pa2m_afirmar(linea_leida_bien, "La linea se leyó y se asignaron los valores");
+	free(poke.nombre);
+	cerrar_archivo_csv(archivo);
+
+}
 void seCreaLaPokedex()
 {
 	struct pokedex *pokedex = pokedex_crear();
@@ -252,6 +269,7 @@ int main()
 {
 	pa2m_nuevo_grupo("Pruebas de archivos CSV");
 	abrirUnArchivoInexistenteDebeRetornarNull();
+	seAbreUnArchivo_seLeenLasLineas();
 	pa2m_nuevo_grupo("Pruebas de pokedex");
 	seCreaLaPokedex();
 	seAgregaUnPokemon();
