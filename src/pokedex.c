@@ -96,12 +96,15 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 
 size_t pokedex_cantidad_pokemones(struct pokedex *pokedex)
 {
+	if (pokedex == NULL) return 0;
 	return pokedex->cantidad;
 }
 
 const struct pokemon *pokedex_buscar_pokemon(struct pokedex *pokedex,
 					     const char *nombre)
 {
+	if (pokedex == NULL) return NULL;
+
 	bool encontrado = false;
 	const struct pokemon *buscado = NULL;
 	const struct nodo_pokemon *nodo_actual = pokedex->lista;
@@ -120,6 +123,8 @@ size_t pokedex_iterar_pokemones(struct pokedex *pokedex,
 				bool (*funcion)(struct pokemon *, void *),
 				void *ctx)
 {
+	if (pokedex == NULL) return 0;
+
 	struct nodo_pokemon *nodo_actual = pokedex->lista;
 	size_t pokemones_iterados = 0;
 	bool seguir_iterando = true;
@@ -133,6 +138,8 @@ size_t pokedex_iterar_pokemones(struct pokedex *pokedex,
 
 void pokedex_destruir(struct pokedex *pokedex)
 {
+	if (pokedex == NULL) return;
+
 	if(pokedex->cantidad == 0){
 		free(pokedex);
 		return;
