@@ -33,6 +33,15 @@ bool mostrar_poke(struct pokemon *poke, void *ctx){
 	printf("%s\n", poke->nombre);
 	return true;
 }
+
+bool pokemones_son_iguales(struct pokemon poke1, struct pokemon poke2)
+{
+	return strcmp(poke1.nombre, poke2.nombre) == 0 &&
+	       poke1.tipo == poke2.tipo &&
+	       poke1.resistencia == poke2.resistencia &&
+	       poke1.destreza == poke2.destreza && poke1.fuerza == poke2.fuerza;
+}
+
 void abrirUnArchivoInexistenteDebeRetornarNull()
 {
 	struct archivo_csv *archivo =
@@ -93,6 +102,7 @@ void seAgregaUnPokemon()
 	};
 	bool agregado = pokedex_agregar_pokemon(pokedex, poke);
 	pa2m_afirmar(agregado == true, "Pokemon agregado a la pokedex");
+	free(poke.nombre);
 	pokedex_destruir(pokedex);
 }
 
@@ -124,6 +134,9 @@ void seCuentanLosPokemones()
 	pokedex_agregar_pokemon(pokedex, poke2);
 	pokedex_agregar_pokemon(pokedex, poke3);
 	pa2m_afirmar(pokedex_cantidad_pokemones(pokedex) == 3, "Hay 3 pokemones");
+	free(poke1.nombre);
+	free(poke2.nombre);
+	free(poke3.nombre);
 	pokedex_destruir(pokedex);
 }
 void seEncuentraElPokemonBuscado()
@@ -200,6 +213,13 @@ void seEncuentraElPokemonBuscado()
 
 	poke8 = pokedex_buscar_pokemon(pokedex, "NOEXISTE");
 	pa2m_afirmar( poke8 == NULL, "NULL: no se ha encontrado al pokemon que no existe");
+	free(poke1.nombre);
+	free(poke2.nombre);
+	free(poke3.nombre);
+	free(poke4.nombre);
+	free(poke5.nombre);
+	free(poke6.nombre);
+	free(poke7.nombre);
 	pokedex_destruir(pokedex);
 }
 
@@ -228,28 +248,28 @@ void seMuestranLosPokes()
 		.resistencia = 20
 	};
 	struct pokemon poke4 = {
-		.nombre = asignar_nombre("uyiouyuio"),
+		.nombre = asignar_nombre("Barco"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke5 = {
-		.nombre = asignar_nombre("fdghdfg"),
+		.nombre = asignar_nombre("Flaco"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke6 = {
-		.nombre = asignar_nombre("hkljl"),
+		.nombre = asignar_nombre("Zequiel"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
 		.resistencia = 20
 	};
 	struct pokemon poke7 = {
-		.nombre = asignar_nombre("Asdfasf"),
+		.nombre = asignar_nombre("Astro"),
 		.tipo = TIPO_FUEGO,
 		.fuerza = 45,
 		.destreza = 10,
@@ -263,7 +283,75 @@ void seMuestranLosPokes()
 	pokedex_agregar_pokemon(pokedex, poke6);
 	pokedex_agregar_pokemon(pokedex, poke7);
 	pokedex_iterar_pokemones(pokedex, mostrar_poke, NULL);
+	free(poke1.nombre);
+	free(poke2.nombre);
+	free(poke3.nombre);
+	free(poke4.nombre);
+	free(poke5.nombre);
+	free(poke6.nombre);
+	free(poke7.nombre);
 	pokedex_destruir(pokedex);
+}
+void cincoPokesConMismoPunteroaNombre()
+{
+	struct pokedex *pokedex = pokedex_crear();
+
+	char *nombre = calloc(10, sizeof(char));
+	strcpy(nombre, "MISMO");
+	struct pokemon poke1 = {
+		.nombre = nombre,
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 3,
+		.resistencia = 20
+	};
+	struct pokemon poke2 = {
+		.nombre = nombre,
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 1,
+		.resistencia = 20
+	};
+	struct pokemon poke3 = {
+		.nombre = nombre,
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 1,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke4 = {
+		.nombre = nombre,
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 10,
+		.resistencia = 20
+	};
+	struct pokemon poke5 = {
+		.nombre = nombre,
+		.tipo = TIPO_ELECTRICO,
+		.fuerza = 45,
+		.destreza = 23,
+		.resistencia = 18
+	};
+	pokedex_agregar_pokemon(pokedex, poke1);
+	pokedex_agregar_pokemon(pokedex, poke2);
+	pokedex_agregar_pokemon(pokedex, poke3);
+	pokedex_agregar_pokemon(pokedex, poke4);
+	pokedex_agregar_pokemon(pokedex, poke5);
+	const struct pokemon *poke6 = pokedex_buscar_pokemon(pokedex, "MISMO");
+	bool son_iguales = pokemones_son_iguales(*poke6, poke1);
+	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 1");
+	son_iguales = pokemones_son_iguales(*poke6, poke2);
+	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 2");
+	son_iguales = pokemones_son_iguales(*poke6, poke3);
+	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 3");
+	son_iguales = pokemones_son_iguales(*poke6, poke4);
+	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 4");
+	son_iguales = pokemones_son_iguales(*poke6, poke5);
+	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 5");
+	pokedex_destruir(pokedex);
+	free(nombre);
+	
 }
 int main()
 {
@@ -276,5 +364,6 @@ int main()
 	seCuentanLosPokemones();
 	seEncuentraElPokemonBuscado();
 	seMuestranLosPokes();
+	cincoPokesConMismoPunteroaNombre();
 	return pa2m_mostrar_reporte();
 }

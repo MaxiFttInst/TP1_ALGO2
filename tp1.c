@@ -33,73 +33,74 @@ bool leer_caracter(const char *str, void *ctx)
 	*(char *)ctx = *(char *)str;
 	return true;
 }
-bool contar_por_tipo(struct pokemon *poke, void *ctx){
+bool liberar_nombre(struct pokemon *poke, void *ctx)
+{
+	free(poke->nombre);
+	return true;
+}
+bool contar_por_tipo(struct pokemon *poke, void *ctx)
+{
 	// printf("Nombre: %s \n", poke->nombre);
 	switch (poke->tipo) {
-		case 'A':
-			(((struct cantidad_tipos*)ctx)->agua)++;
-			break;
-		case 'F':
-			(((struct cantidad_tipos*)ctx)->fuego)++;
-			break;
-		case 'P':
-			(((struct cantidad_tipos*)ctx)->planta)++;
-			break;
-		case 'R':
-			(((struct cantidad_tipos*)ctx)->roca)++;
-			break;
-		case 'E':
-			(((struct cantidad_tipos*)ctx)->electrico)++;
-			break;
-		case 'N':
-			(((struct cantidad_tipos*)ctx)->normal)++;
-			break;
-		case 'L':
-			(((struct cantidad_tipos*)ctx)->lucha)++;
-			break;
-	
+	case 'A':
+		(((struct cantidad_tipos *)ctx)->agua)++;
+		break;
+	case 'F':
+		(((struct cantidad_tipos *)ctx)->fuego)++;
+		break;
+	case 'P':
+		(((struct cantidad_tipos *)ctx)->planta)++;
+		break;
+	case 'R':
+		(((struct cantidad_tipos *)ctx)->roca)++;
+		break;
+	case 'E':
+		(((struct cantidad_tipos *)ctx)->electrico)++;
+		break;
+	case 'N':
+		(((struct cantidad_tipos *)ctx)->normal)++;
+		break;
+	case 'L':
+		(((struct cantidad_tipos *)ctx)->lucha)++;
+		break;
 	}
 	return true;
 }
 int main(int argc, char const *argv[])
 {
-	if (argc < 2){
+	if (argc < 2) {
 		printf("Ingrese algún argumento válido");
 		return -1;
 	}
-	struct archivo_csv *archivo =
-		abrir_archivo_csv(argv[1], ';');
+	struct archivo_csv *archivo = abrir_archivo_csv(argv[1], ';');
 
 	bool (*funciones[5])(const char *, void *) = { crear_string_nuevo,
-						       leer_caracter,
-						       leer_int, leer_int, leer_int };
+						       leer_caracter, leer_int,
+						       leer_int, leer_int };
 	char caracter;
 	char *nombre = NULL;
 	int fuerza;
 	int destreza;
 	int resistencia;
-	void *punteros[5] = { &nombre, &caracter, &fuerza, &destreza, &resistencia};
+	void *punteros[5] = { &nombre, &caracter, &fuerza, &destreza,
+			      &resistencia };
 
 	struct pokedex *pdex = pokedex_crear();
-	struct pokemon a_agregar = {
-		.nombre = NULL,
-		.tipo = 0,
-		.fuerza = 0,
-		.destreza = 0,
-		.resistencia = 0
-	};
-	struct cantidad_tipos cant_tipos = {
-		.agua = 0,
-		.fuego = 0,
-		.planta = 0,
-		.roca = 0,
-		.electrico = 0,
-		.normal = 0,
-		.lucha = 0
-	};
+	struct pokemon a_agregar = { .nombre = NULL,
+				     .tipo = 0,
+				     .fuerza = 0,
+				     .destreza = 0,
+				     .resistencia = 0 };
+	struct cantidad_tipos cant_tipos = { .agua = 0,
+					     .fuego = 0,
+					     .planta = 0,
+					     .roca = 0,
+					     .electrico = 0,
+					     .normal = 0,
+					     .lucha = 0 };
 	while (leer_linea_csv(archivo, 5, funciones, punteros) == 5) {
 		printf("Nombre: %s, Tipo: %c, Fuerza: %d, Destreza: %d, Resistencia: %d \n",
-		 nombre, caracter, fuerza, destreza, resistencia);
+		       nombre, caracter, fuerza, destreza, resistencia);
 		a_agregar.nombre = nombre;
 		a_agregar.tipo = caracter;
 		a_agregar.fuerza = fuerza;
@@ -118,6 +119,7 @@ int main(int argc, char const *argv[])
 	printf("Lucha: %d \n", cant_tipos.lucha);
 
 	cerrar_archivo_csv(archivo);
+	pokedex_iterar_pokemones(pdex, liberar_nombre, NULL);
 	pokedex_destruir(pdex);
 	return 0;
 }
