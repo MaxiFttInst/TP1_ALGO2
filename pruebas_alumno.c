@@ -29,10 +29,6 @@ char *asignar_nombre(char *nombre){
 	strcpy(ptr, nombre);
 	return ptr;
 }
-bool mostrar_poke(struct pokemon *poke, void *ctx){
-	printf("%s\n", poke->nombre);
-	return true;
-}
 
 bool pokemones_son_iguales(struct pokemon poke1, struct pokemon poke2)
 {
@@ -41,7 +37,21 @@ bool pokemones_son_iguales(struct pokemon poke1, struct pokemon poke2)
 	       poke1.resistencia == poke2.resistencia &&
 	       poke1.destreza == poke2.destreza && poke1.fuerza == poke2.fuerza;
 }
+struct ctx_evaluar_poke {
+	size_t actual;
+	size_t cantidad_bien;
+	char nombres[7][20];
 
+};
+bool evaluar_poke(struct pokemon *poke, void *ctx){
+	
+	struct ctx_evaluar_poke *cep = ctx;
+	bool iguales = (strcmp(poke->nombre, cep->nombres[cep->actual]) == 0);
+	if(iguales)
+		(cep->cantidad_bien)++;
+	(cep->actual)++;
+	return true;
+}
 void abrirUnArchivoInexistenteDebeRetornarNull()
 {
 	struct archivo_csv *archivo =
@@ -282,7 +292,19 @@ void seMuestranLosPokes()
 	pokedex_agregar_pokemon(pokedex, poke5);
 	pokedex_agregar_pokemon(pokedex, poke6);
 	pokedex_agregar_pokemon(pokedex, poke7);
-	pokedex_iterar_pokemones(pokedex, mostrar_poke, NULL);
+	struct ctx_evaluar_poke cep = {
+		.cantidad_bien = 0,
+		.actual = 0,
+		.nombres = { 
+			"Algo",
+			"Astro",
+			"Barco",
+			"Charmander",
+			"Flaco",
+			"Igna",
+			"Zequiel" }
+	};
+	pokedex_iterar_pokemones(pokedex, evaluar_poke, &cep);
 	free(poke1.nombre);
 	free(poke2.nombre);
 	free(poke3.nombre);
@@ -290,6 +312,8 @@ void seMuestranLosPokes()
 	free(poke5.nombre);
 	free(poke6.nombre);
 	free(poke7.nombre);
+	// printf("")
+	pa2m_afirmar(cep.cantidad_bien == 7, "Los nombres están ordenados en forma creciente");
 	pokedex_destruir(pokedex);
 }
 void cincoPokesConMismoPunteroaNombre()
@@ -341,13 +365,17 @@ void cincoPokesConMismoPunteroaNombre()
 	const struct pokemon *poke6 = pokedex_buscar_pokemon(pokedex, "MISMO");
 	bool son_iguales = pokemones_son_iguales(*poke6, poke1);
 	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 1");
-	son_iguales = pokemones_son_iguales(*poke6, poke2);
+	const struct pokemon *poke7 = pokedex_buscar_pokemon(pokedex, "MISMO");
+	son_iguales = pokemones_son_iguales(*poke7, poke2);
 	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 2");
-	son_iguales = pokemones_son_iguales(*poke6, poke3);
+	const struct pokemon *poke8 = pokedex_buscar_pokemon(pokedex, "MISMO");
+	son_iguales = pokemones_son_iguales(*poke8, poke3);
 	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 3");
-	son_iguales = pokemones_son_iguales(*poke6, poke4);
+	const struct pokemon *poke9 = pokedex_buscar_pokemon(pokedex, "MISMO");
+	son_iguales = pokemones_son_iguales(*poke9, poke4);
 	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 4");
-	son_iguales = pokemones_son_iguales(*poke6, poke5);
+	const struct pokemon *poke10 = pokedex_buscar_pokemon(pokedex, "MISMO");
+	son_iguales = pokemones_son_iguales(*poke10, poke5);
 	pa2m_afirmar(son_iguales, "Se ha encontrado al pokemon 5");
 	pokedex_destruir(pokedex);
 	free(nombre);

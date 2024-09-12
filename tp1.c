@@ -107,6 +107,7 @@ int main(int argc, char const *argv[])
 		a_agregar.destreza = destreza;
 		a_agregar.resistencia = resistencia;
 		pokedex_agregar_pokemon(pdex, a_agregar);
+		free(nombre);
 	}
 	pokedex_iterar_pokemones(pdex, contar_por_tipo, &cant_tipos);
 	printf("Cantidad de pokemones de cada tipo \n");
@@ -119,7 +120,6 @@ int main(int argc, char const *argv[])
 	printf("Lucha: %d \n", cant_tipos.lucha);
 
 	cerrar_archivo_csv(archivo);
-	pokedex_iterar_pokemones(pdex, liberar_nombre, NULL);
 	pokedex_destruir(pdex);
 	return 0;
 }

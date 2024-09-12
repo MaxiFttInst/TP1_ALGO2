@@ -59,7 +59,7 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 		while (!posicionado && nodo_actual != NULL) {
 			if (nodo_actual->siguiente == NULL) {
 				if (strcmp(nodo_actual->poke.nombre,
-					   pokemon.nombre) < 0) {
+					   pokemon.nombre) <= 0) {
 					nuevo_nodo->poke = pokemon;
 					nuevo_nodo->poke.nombre = calloc(strlen(pokemon.nombre) + 1, sizeof(char));
 					strcpy(nuevo_nodo->poke.nombre, pokemon.nombre);
