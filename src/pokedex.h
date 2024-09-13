@@ -20,7 +20,6 @@ struct pokemon {
 	int resistencia;
 };
 
-struct nodo_pokemon;
 struct pokedex;
 
 /**

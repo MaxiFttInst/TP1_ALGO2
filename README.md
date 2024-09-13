@@ -6,12 +6,17 @@
 
 ## Alumno: Maximiliano Fittipaldi - 111676 - mafittipaldi@fi.uba.ar
 
-- Para ejecutar pruebas:
+- Para ejecutar todo:
 
 ```bash
 make
 ```
 
+- Para ejecutar pruebas:
+
+```bash
+make clean && make valgrind-alumno
+```
 - Para ejecutar tp1:
 
 ```bash
@@ -38,6 +43,7 @@ struct nodo_pokemon {
 };
 struct pokedex {
 	size_t cantidad;
+	int ultimo_encontrado;
 	struct nodo_pokemon *lista;
 };
 ```
@@ -79,16 +85,25 @@ entre estos dos nodos.
 ##### 1
 ```c
 ...
-	if(pokedex->lista == NULL){
-		pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
-		if(pokedex->lista != NULL){
-			pokedex->lista->poke = pokemon;
-			pokedex->lista->siguiente = NULL;
-		}
-	} else { ...
+if(pokedex->lista == NULL){
+	pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
+	if (pokedex->lista != NULL) {
+		pokedex->lista->poke = pokemon;
+		pokedex->lista->poke.nombre = calloc(
+			strlen(pokemon.nombre) + 1, sizeof(char));
+		strcpy(pokedex->lista->poke.nombre, pokemon.nombre);
+		pokedex->lista->siguiente = NULL;
+	}
+} else { ...
 ```
 Creamos un nodo pokemon y lo ponemos en la cabeza de la lista, es decir,
-en _pokedex->lista_ y decimos que su siguiente es NULL.
+en _pokedex->lista_ y decimos que su siguiente es NULL. Verás que también,
+luego de asignar el pokemon, creamos una string dinámica y se la asignamos al
+nombre, y esto lo hacemos en el resto de casos,
+¿Por qué? Podría pasar que el usuario le pase al pokemon una string del
+stack, o una string del heap, y si esta última es liberada por el usuario, la
+pokedex perderá el nombre de ese pokemon. Por eso, se copia y luego se elimina junto
+con los nodos.
 ##### Preliminares
 Antes de seguir, veamos las declaraciones que son comunes para el resto de los
 puntos.
@@ -118,16 +133,26 @@ para saber cuándo salir del bucle que manejará las 3 condiciones restantes. Es
 ##### 2
 ```c
 	if(nodo_actual->siguiente == NULL){
-		if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0){
+		if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) <= 0){
 			nuevo_nodo->poke = pokemon;
+			nuevo_nodo->poke.nombre = calloc(
+				strlen(pokemon.nombre) + 1,
+				sizeof(char));
+			strcpy(nuevo_nodo->poke.nombre,
+			       pokemon.nombre);
 			nodo_actual->siguiente = nuevo_nodo;
 		} else {
 			nodo_aux.poke = nodo_actual->poke;
 			nodo_actual->poke = pokemon;
+			nodo_actual->poke.nombre = calloc(
+				strlen(pokemon.nombre) + 1,
+				sizeof(char));
+			strcpy(nodo_actual->poke.nombre,
+			       pokemon.nombre);
 			nuevo_nodo->poke = nodo_aux.poke;
 			nodo_actual->siguiente = nuevo_nodo;
-		}
-		posicionado = true;
+	}
+	posicionado = true;
 ```
 Acá pueden pasar dos cosas: el pokemon del nuevo nodo es mayor o menor al actual.
 Si el pokemon es mayor al correspondiente al nodo actual, el nuevo nodo se anida
@@ -138,13 +163,18 @@ del nuevo nodo y este se anida al nodo actual.
 
 } else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) > 0
     && strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
-        direccion_lista = nodo_actual->siguiente;
-        nodo_aux.poke = nodo_actual->poke;
-        nodo_actual->poke = pokemon;
-        nuevo_nodo->poke = nodo_aux.poke;
-        nodo_actual->siguiente = nuevo_nodo;
-        nuevo_nodo->siguiente = direccion_lista;
-        posicionado = true;
+	direccion_lista = nodo_actual->siguiente;
+	nodo_aux.poke = nodo_actual->poke;
+	nodo_actual->poke = pokemon;
+	nodo_actual->poke.nombre =
+		calloc(strlen(pokemon.nombre) + 1,
+		       sizeof(char));
+	strcpy(nodo_actual->poke.nombre,
+	       pokemon.nombre);
+	nuevo_nodo->poke = nodo_aux.poke;
+	nodo_actual->siguiente = nuevo_nodo;
+	nuevo_nodo->siguiente = direccion_lista;
+	posicionado = true;
 ```
 En este caso, verificamos que: 
 pokemon_actual.nombre > pokemon.nombre < suguiente_pokemon.nombre.
@@ -159,11 +189,15 @@ nos ayuda a no perder el registro del resto de nodos.
 ```c
 } else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0
     && strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
-        nuevo_nodo->poke = pokemon;
-        direccion_lista = nodo_actual->siguiente;
-        nodo_actual->siguiente = nuevo_nodo;
-        nuevo_nodo->siguiente = direccion_lista;
-        posicionado = true;
+	nuevo_nodo->poke = pokemon;
+	nuevo_nodo->poke.nombre =
+		calloc(strlen(pokemon.nombre) + 1,
+		       sizeof(char));
+	strcpy(nuevo_nodo->poke.nombre, pokemon.nombre);
+	direccion_lista = nodo_actual->siguiente;
+	nodo_actual->siguiente = nuevo_nodo;
+	nuevo_nodo->siguiente = direccion_lista;
+	posicionado = true;
 }
 ```
 En este caso, estamos contemplando lo siguiente:
@@ -199,7 +233,9 @@ Es O(n), pues necesita iterar hasta encontrar al pokemon.
 
 ##### Complejidad
 Es O(n). Si una función no frena el bucle, se iteran todos los pokemones.
-
+No obstante, hay que tener en cuenta que su complejidad es variable, porque depende
+del usuario, es decir, si este involucra una función O(n^2) para cada pokemon, la
+complejidad resultaría en O(n^3).
 
 #### pokedex_destruir: O(n)
 
@@ -218,8 +254,74 @@ posición (exceptuando el final), deberíamos desplazar el resto de
 los elementos delante de _e_ _i_+1 posiciones, donde _i_ es la posición actual de cada
 elemento.
 
+#### Diagrama de la memoria de pokedex
+<img src="img/heap_stack_pokedex.drawio.svg" alt="heap y stack de la pokedex" width="100%"/>
+
 ### CSV
+#### abrir_archivo_csv: O(1)
+##### Complejidad
+Dado que siempre tiene que realizar la misma operación, sin importar los parámetros
+que reciba, deducimos que la complejidad es O(1)
+#### leer_linea_csv: O(n)
+Para leer una linea, debemos tener un vector de lecturas que nos permita
+almacenar los valores leídos.
+```c
+char **lecturas = calloc(columnas, sizeof(char *));
+for (int i = 0; i < columnas; i++)
+	lecturas[i] = calloc(100, sizeof(char));
+```
+También, desde luego, unos string que nos permitan separar columna por columna.
+```c
+char parser[10] = "%[^;];";
+parser[3] = archivo->separador;
+parser[5] = archivo->separador;
+char parser_nl[10] = "%[^\n]\n";
+```
+_parser_ lee todo hasta que llegue al separador (';' por defecto) y _parser_nl_
+lee hasta un '\n'
+##### Ciclo de lectura
+```c
+while (i < columnas) {
+	if (i == columnas - 1)
+		cols_leidas +=
+			fscanf(archivo->file, parser_nl, lecturas[i]);
+	else {
+		cols_leidas +=
+			fscanf(archivo->file, parser, lecturas[i]);
+	}
+	if (cols_leidas != EOF && funciones[i] != NULL) {
+		resultado = funciones[i](lecturas[i], ctx[i]);
+		if (resultado)
+			cols_exitosamente_leidas++;
+	}
+	i++;
+}
+```
+Leemos de _archivo->file_ la primera columna con _parser_. Lo siguiente
+es corroborar que cols_leidas sea distinto de EOF (-1) y que la función pasada
+por el usuario no sea NULL. Si el resultado de la función fue positivo, entonces
+seguimos iterando, sino, cortamos en esa columna.
+
+Hay que tener en cuenta que se cuenta una _lectura exitosa_ si en el bucle se
+pudo leer el string y se le pudo aplicar la función.
+Finalmente, se libera la memoria, se corrobora también que se hayan leído todas
+las columnas, caso contrario, se la función devuelve cero. Este caso probablemente
+se trate de EOF (End Of File).
+
+##### Complejidad
+Es O(n) porque que debe iterar columna por columna para aplicar las funciones del usuario.
+Aunque, al igual que con *pokedex_iterar_pokemones*, debe tenerse en cuenta la
+complejidad extra que añada el usuario.
+
+#### cerrar_archivo_csv: O(1)
+Cierra el archivo
+##### Complejidad
+Dado que siempre tiene que realizar la misma operación, sin importar los parámetros
+que reciba, deducimos que la complejidad es O(1). 
+
+#### Diagrama de la memoria del manejo de archivos
+<img src="img/heap_stack_csv.drawio.svg" alt="heap y stack de archivos" width="80%"/>
+
 TODO:
-- explicar csv
 - hacer dibujos
 

@@ -41,7 +41,7 @@ size_t leer_linea_csv(struct archivo_csv *archivo, size_t columnas,
 	parser[5] = archivo->separador;
 	char parser_nl[10] = "%[^\n]\n";
 	size_t i = 0;
-	while (i < columnas && resultado) {
+	while (i < columnas) {
 		if (i == columnas - 1)
 			cols_leidas +=
 				fscanf(archivo->file, parser_nl, lecturas[i]);
