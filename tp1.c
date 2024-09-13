@@ -40,7 +40,9 @@ bool liberar_nombre(struct pokemon *poke, void *ctx)
 }
 bool contar_por_tipo(struct pokemon *poke, void *ctx)
 {
-	// printf("Nombre: %s \n", poke->nombre);
+	printf("Nombre: %s, Tipo: %c, Fuerza: %d, Destreza: %d, Resistencia: %d \n",
+	       poke->nombre, poke->tipo, poke->fuerza, poke->destreza,
+	       poke->resistencia);
 	switch (poke->tipo) {
 	case 'A':
 		(((struct cantidad_tipos *)ctx)->agua)++;
@@ -99,8 +101,6 @@ int main(int argc, char const *argv[])
 					     .normal = 0,
 					     .lucha = 0 };
 	while (leer_linea_csv(archivo, 5, funciones, punteros) == 5) {
-		printf("Nombre: %s, Tipo: %c, Fuerza: %d, Destreza: %d, Resistencia: %d \n",
-		       nombre, caracter, fuerza, destreza, resistencia);
 		a_agregar.nombre = nombre;
 		a_agregar.tipo = caracter;
 		a_agregar.fuerza = fuerza;
