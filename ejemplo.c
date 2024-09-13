@@ -44,7 +44,6 @@ int main(int argc, char const *argv[])
 		       caracter);
 		free(string);
 	}
-	// free(string);
 
 	printf("Fin de archivo\n");
 
