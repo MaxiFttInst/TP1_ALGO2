@@ -44,13 +44,15 @@ struct nodo_pokemon {
 struct pokedex {
 	size_t cantidad;
 	int ultimo_encontrado;
+	char *nombre_ultimo_encontrado;
 	struct nodo_pokemon *lista;
 };
 ```
 Es decir, la pokedex almacena el número de pokemones en _cantidad_
 y tiene un struct que apunta al primer nodo pokemon, el cual posee el
 pokemon propiamente dicho y un puntero al siguiente nodo. De esa forma,
-todos los nodos están conectados.
+todos los nodos están conectados. También tiene otras variables que luego
+se explicarán.
 Esta estructura fue utilizada por las ventajas que brinda, aunque se mencionarán
 al final, dado que es mejor primero ver su funcionamiento para entender sus cualidades.
 
@@ -74,14 +76,29 @@ resulta en O(1)
 #### pokedex_agregar_pokemon: O(n)
 
 Esta función agrega y ordena por nombre de pokemones.
-Puede verse como varios casos separados:
+##### Inicio de la función
+```c
+if (pokedex == NULL)
+	return false;
+if (pokemon.nombre == NULL)
+	return false;
+char *nombre_poke = calloc(strlen(pokemon.nombre) + 1, sizeof(char));
+if (nombre_poke == NULL)
+	return false;
+strcpy(nombre_poke, pokemon.nombre);
+```
+Lo más importante acá es que hacemos un puntero dinámico para el nombre
+del pokemon, ¿Por qué? Podría pasar que el usuario le pase al pokemon una string del
+stack, o una string del heap, y si esta última es liberada por el usuario, la
+pokedex perderá el nombre de ese pokemon.
+
+La función puede verse como varios casos separados:
 1. La lista está vacía
 2. El siguiente nodo es NULL
 3. tiene más de un nodo y el que se quiere insertar es mayor al
 primero pero menor al segundo
 4. tiene más de un nodo y el que se quiere insertar está
 entre estos dos nodos.
-
 ##### 1
 ```c
 ...
@@ -89,20 +106,14 @@ if(pokedex->lista == NULL){
 	pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
 	if (pokedex->lista != NULL) {
 		pokedex->lista->poke = pokemon;
-		pokedex->lista->poke.nombre = calloc(
-			strlen(pokemon.nombre) + 1, sizeof(char));
-		strcpy(pokedex->lista->poke.nombre, pokemon.nombre);
+		pokedex->lista->poke.nombre = nombre_poke;
 		pokedex->lista->siguiente = NULL;
 	}
 } else { ...
 ```
 Creamos un nodo pokemon y lo ponemos en la cabeza de la lista, es decir,
-en _pokedex->lista_ y decimos que su siguiente es NULL. Verás que también,
-luego de asignar el pokemon, creamos una string dinámica y se la asignamos al
-nombre, y esto lo hacemos en el resto de casos,
-¿Por qué? Podría pasar que el usuario le pase al pokemon una string del
-stack, o una string del heap, y si esta última es liberada por el usuario, la
-pokedex perderá el nombre de ese pokemon. Por eso, se copia y luego se elimina junto
+en *pokedex->lista* y decimos que su siguiente es NULL.
+ Por eso, se copia y luego se elimina junto
 con los nodos.
 ##### Preliminares
 Antes de seguir, veamos las declaraciones que son comunes para el resto de los
@@ -126,7 +137,7 @@ En este caso vamos a tener varios nodos.
 - nodo_actual: es el que se usará para recorrer toda la lista.
 - nuevo_nodo: el nodo que efectivamente se insertará con el nuevo pokemon.
 
-Luego verificamos que _nuevo_nodo_ sea válido y declaramos una variable _posicionado_
+Luego verificamos que *nuevo_nodo* sea válido y declaramos una variable *posicionado*
 para saber cuándo salir del bucle que manejará las 3 condiciones restantes. Este
 último iterará hasta que se haya posicionado o hasta que el nodo actual sea NULL.
 
@@ -135,20 +146,12 @@ para saber cuándo salir del bucle que manejará las 3 condiciones restantes. Es
 	if(nodo_actual->siguiente == NULL){
 		if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) <= 0){
 			nuevo_nodo->poke = pokemon;
-			nuevo_nodo->poke.nombre = calloc(
-				strlen(pokemon.nombre) + 1,
-				sizeof(char));
-			strcpy(nuevo_nodo->poke.nombre,
-			       pokemon.nombre);
+			nuevo_nodo->poke.nombre = nombre_poke;
 			nodo_actual->siguiente = nuevo_nodo;
 		} else {
 			nodo_aux.poke = nodo_actual->poke;
 			nodo_actual->poke = pokemon;
-			nodo_actual->poke.nombre = calloc(
-				strlen(pokemon.nombre) + 1,
-				sizeof(char));
-			strcpy(nodo_actual->poke.nombre,
-			       pokemon.nombre);
+			nodo_actual->poke.nombre = nombre_poke;
 			nuevo_nodo->poke = nodo_aux.poke;
 			nodo_actual->siguiente = nuevo_nodo;
 	}
@@ -156,7 +159,7 @@ para saber cuándo salir del bucle que manejará las 3 condiciones restantes. Es
 ```
 Acá pueden pasar dos cosas: el pokemon del nuevo nodo es mayor o menor al actual.
 Si el pokemon es mayor al correspondiente al nodo actual, el nuevo nodo se anida
-al siguiente del nodo actual. Caso contrario, _nodo_actual_ toma los valores
+al siguiente del nodo actual. Caso contrario, *nodo_actual* toma los valores
 del nuevo nodo y este se anida al nodo actual.
 ##### 3
 ```c
@@ -166,11 +169,7 @@ del nuevo nodo y este se anida al nodo actual.
 	direccion_lista = nodo_actual->siguiente;
 	nodo_aux.poke = nodo_actual->poke;
 	nodo_actual->poke = pokemon;
-	nodo_actual->poke.nombre =
-		calloc(strlen(pokemon.nombre) + 1,
-		       sizeof(char));
-	strcpy(nodo_actual->poke.nombre,
-	       pokemon.nombre);
+	nodo_actual->poke.nombre = nombre_poke;
 	nuevo_nodo->poke = nodo_aux.poke;
 	nodo_actual->siguiente = nuevo_nodo;
 	nuevo_nodo->siguiente = direccion_lista;
@@ -181,8 +180,8 @@ pokemon_actual.nombre > pokemon.nombre < suguiente_pokemon.nombre.
 Si esto es cierto, necesitamos que la estructura quede así:
 pokemon.nombre < pokemon_actual.nombre < suguiente_pokemon.nombre.
 y anidar.
-Para eso, damos vuelta los valores con un nodo auxiliar, _nodo_actual_ pasa a apuntar
-a _nuevo_nodo_ y este último apunta a _dirección_lista_, una variable auxiliar que
+Para eso, damos vuelta los valores con un nodo auxiliar, *nodo_actual* pasa a apuntar
+a *nuevo_nodo* y este último apunta a *dirección_lista*, una variable auxiliar que
 nos ayuda a no perder el registro del resto de nodos.
 
 ##### 4
@@ -190,10 +189,7 @@ nos ayuda a no perder el registro del resto de nodos.
 } else if(strcmp(nodo_actual->poke.nombre, pokemon.nombre) < 0
     && strcmp(pokemon.nombre, ((struct nodo_pokemon*)(nodo_actual->siguiente))->poke.nombre) < 0){
 	nuevo_nodo->poke = pokemon;
-	nuevo_nodo->poke.nombre =
-		calloc(strlen(pokemon.nombre) + 1,
-		       sizeof(char));
-	strcpy(nuevo_nodo->poke.nombre, pokemon.nombre);
+	nuevo_nodo->poke.nombre = nombre_poke;
 	direccion_lista = nodo_actual->siguiente;
 	nodo_actual->siguiente = nuevo_nodo;
 	nuevo_nodo->siguiente = direccion_lista;
@@ -206,13 +202,18 @@ Muy parecido al anterior, de hecho, igual, sólo que sin el otro nodo auxiliar.
 
 ##### Cierre
 Por último si no pudimos hacer alguna de las operaciones anteriores, vamos
-al siguiente nodo.
+al siguiente nodo. Si, por algún motivo, no se pudo posicionar, liberamos
+la memoria de *nombre_poke*. No obstante, si todo salió bien, aumentamos la
+cantidad devolvemos _true_.
 ```c
 
 	if(!posicionado)
 		nodo_actual = nodo_actual->siguiente;
 	}
+	if (!posicionado)
+		free(nombre_poke);
 }
+	pokedex->cantidad++;
 	return true;
 ```
 ##### Complejidad
@@ -252,7 +253,8 @@ while (nodo_actual != NULL && !encontrado) {
 return buscado;
 ```
 Viendo la función un poco por encima notamos que tiene un condición extra que
-parece no tener sentido y aparece *pokedex->ultimo_encontrado*, ¿Qué es todo esto?
+parece no tener sentido y aparecen *pokedex->ultimo_encontrado* y 
+*pokedex->nombre_ultimo_encontrado*, ¿Qué es todo esto?
 Estas condiciones se encargan del caso en el que haya pokemones con el mismo nombre,
 en tal caso, la próxima vez que se invoque la función, se deberá devolver la próxima
 ocurrencia. Entonces, si hay una ocurrencia, encima el índice del último encontrado
@@ -312,7 +314,7 @@ parser[3] = archivo->separador;
 parser[5] = archivo->separador;
 char parser_nl[10] = "%[^\n]\n";
 ```
-_parser_ lee todo hasta que llegue al separador (';' por defecto) y _parser_nl_
+*parser* lee todo hasta que llegue al separador (';' por defecto) y *parser_nl*
 lee hasta un '\n'
 ##### Ciclo de lectura
 ```c
@@ -332,7 +334,7 @@ while (i < columnas) {
 	i++;
 }
 ```
-Leemos de _archivo->file_ la primera columna con _parser_. Lo siguiente
+Leemos de *archivo->file* la primera columna con *parser*. Lo siguiente
 es corroborar que cols_leidas sea distinto de EOF (-1) y que la función pasada
 por el usuario no sea NULL. Si el resultado de la función fue positivo, entonces
 seguimos iterando, sino, cortamos en esa columna.

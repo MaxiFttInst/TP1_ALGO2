@@ -36,14 +36,15 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 		return false;
 	if (pokemon.nombre == NULL)
 		return false;
-	pokedex->cantidad++;
+	char *nombre_poke = calloc(strlen(pokemon.nombre) + 1, sizeof(char));
+	if (nombre_poke == NULL)
+		return false;
+	strcpy(nombre_poke, pokemon.nombre);
 	if (pokedex->lista == NULL) {
 		pokedex->lista = calloc(1, sizeof(struct nodo_pokemon));
 		if (pokedex->lista != NULL) {
 			pokedex->lista->poke = pokemon;
-			pokedex->lista->poke.nombre = calloc(
-				strlen(pokemon.nombre) + 1, sizeof(char));
-			strcpy(pokedex->lista->poke.nombre, pokemon.nombre);
+			pokedex->lista->poke.nombre = nombre_poke;
 			pokedex->lista->siguiente = NULL;
 		}
 	} else {
@@ -53,11 +54,6 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 		struct nodo_pokemon *nodo_actual = pokedex->lista;
 		struct nodo_pokemon *nuevo_nodo =
 			calloc(1, sizeof(struct nodo_pokemon));
-		char *nombre_poke =
-			calloc(strlen(pokemon.nombre) + 1, sizeof(char));
-		if (nombre_poke == NULL)
-			return false;
-		strcpy(nombre_poke, pokemon.nombre);
 		if (nuevo_nodo == NULL)
 			return false;
 
@@ -112,6 +108,7 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 		if (!posicionado)
 			free(nombre_poke);
 	}
+	pokedex->cantidad++;
 	return true;
 }
 
