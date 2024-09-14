@@ -225,12 +225,47 @@ Simplemente toma la cantidad almacenada
 Es O(1), dado que, en cualquier caso, sólo debe leer una variable.
 
 #### pokedex_buscar_pokemon: O(n)
+Busca al pokemon pedido por nombre
+```c
+if (pokedex == NULL)
+	return NULL;
+
+bool encontrado = false;
+int contador = 0;
+const struct pokemon *buscado = NULL;
+const struct nodo_pokemon *nodo_actual = pokedex->lista;
+while (nodo_actual != NULL && !encontrado) {
+	if (strcmp(nodo_actual->poke.nombre, nombre) == 0) {
+		if (pokedex->ultimo_encontrado < contador ||
+		    strcmp(pokedex->nombre_ultimo_encontrado,
+			   nodo_actual->poke.nombre) != 0) {
+			buscado = &(nodo_actual->poke);
+			encontrado = true;
+			pokedex->ultimo_encontrado = contador;
+			pokedex->nombre_ultimo_encontrado =
+				nodo_actual->poke.nombre;
+		}
+	}
+	nodo_actual = nodo_actual->siguiente;
+	contador++;
+}
+return buscado;
+```
+Viendo la función un poco por encima notamos que tiene un condición extra que
+parece no tener sentido y aparece *pokedex->ultimo_encontrado*, ¿Qué es todo esto?
+Estas condiciones se encargan del caso en el que haya pokemones con el mismo nombre,
+en tal caso, la próxima vez que se invoque la función, se deberá devolver la próxima
+ocurrencia. Entonces, si hay una ocurrencia, encima el índice del último encontrado
+es menor al contador del bucle, sabemos con certeza que se trata de otro pokemon.
+También comprobamos que el nombre del último encontrado y el nombre del pokemon
+actual sean distintos en caso de que en la próxima busqueda se pida otro distinto.
 
 ##### Complejidad
 Es O(n), pues necesita iterar hasta encontrar al pokemon.
 
 #### pokedex_iterar_pokemones: O(n)
-
+Itera los pokemones hasta el final o hasta la función del usuario decida
+detenerse.
 ##### Complejidad
 Es O(n). Si una función no frena el bucle, se iteran todos los pokemones.
 No obstante, hay que tener en cuenta que su complejidad es variable, porque depende
@@ -238,7 +273,7 @@ del usuario, es decir, si este involucra una función O(n^2) para cada pokemon, 
 complejidad resultaría en O(n^3).
 
 #### pokedex_destruir: O(n)
-
+Destruye la pokedex
 
 ##### Complejidad
 Es O(n), porque debe pasar por todos los nodos para liberarlos.
@@ -321,7 +356,3 @@ que reciba, deducimos que la complejidad es O(1).
 
 #### Diagrama de la memoria del manejo de archivos
 <img src="img/heap_stack_csv.drawio.svg" alt="heap y stack de archivos" width="80%"/>
-
-TODO:
-- hacer dibujos
-

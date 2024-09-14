@@ -10,6 +10,7 @@ struct nodo_pokemon {
 struct pokedex {
 	size_t cantidad;
 	int ultimo_encontrado;
+	char *nombre_ultimo_encontrado;
 	struct nodo_pokemon *lista;
 };
 
@@ -52,6 +53,11 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 		struct nodo_pokemon *nodo_actual = pokedex->lista;
 		struct nodo_pokemon *nuevo_nodo =
 			calloc(1, sizeof(struct nodo_pokemon));
+		char *nombre_poke =
+			calloc(strlen(pokemon.nombre) + 1, sizeof(char));
+		if (nombre_poke == NULL)
+			return false;
+		strcpy(nombre_poke, pokemon.nombre);
 		if (nuevo_nodo == NULL)
 			return false;
 
@@ -62,20 +68,12 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 				if (strcmp(nodo_actual->poke.nombre,
 					   pokemon.nombre) <= 0) {
 					nuevo_nodo->poke = pokemon;
-					nuevo_nodo->poke.nombre = calloc(
-						strlen(pokemon.nombre) + 1,
-						sizeof(char));
-					strcpy(nuevo_nodo->poke.nombre,
-					       pokemon.nombre);
+					nuevo_nodo->poke.nombre = nombre_poke;
 					nodo_actual->siguiente = nuevo_nodo;
 				} else {
 					nodo_aux.poke = nodo_actual->poke;
 					nodo_actual->poke = pokemon;
-					nodo_actual->poke.nombre = calloc(
-						strlen(pokemon.nombre) + 1,
-						sizeof(char));
-					strcpy(nodo_actual->poke.nombre,
-					       pokemon.nombre);
+					nodo_actual->poke.nombre = nombre_poke;
 					nuevo_nodo->poke = nodo_aux.poke;
 					nodo_actual->siguiente = nuevo_nodo;
 				}
@@ -89,11 +87,7 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 				direccion_lista = nodo_actual->siguiente;
 				nodo_aux.poke = nodo_actual->poke;
 				nodo_actual->poke = pokemon;
-				nodo_actual->poke.nombre =
-					calloc(strlen(pokemon.nombre) + 1,
-					       sizeof(char));
-				strcpy(nodo_actual->poke.nombre,
-				       pokemon.nombre);
+				nodo_actual->poke.nombre = nombre_poke;
 				nuevo_nodo->poke = nodo_aux.poke;
 				nodo_actual->siguiente = nuevo_nodo;
 				nuevo_nodo->siguiente = direccion_lista;
@@ -106,10 +100,7 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 						    *)(nodo_actual->siguiente))
 						  ->poke.nombre) < 0) {
 				nuevo_nodo->poke = pokemon;
-				nuevo_nodo->poke.nombre =
-					calloc(strlen(pokemon.nombre) + 1,
-					       sizeof(char));
-				strcpy(nuevo_nodo->poke.nombre, pokemon.nombre);
+				nuevo_nodo->poke.nombre = nombre_poke;
 				direccion_lista = nodo_actual->siguiente;
 				nodo_actual->siguiente = nuevo_nodo;
 				nuevo_nodo->siguiente = direccion_lista;
@@ -118,6 +109,8 @@ bool pokedex_agregar_pokemon(struct pokedex *pokedex, struct pokemon pokemon)
 			if (!posicionado)
 				nodo_actual = nodo_actual->siguiente;
 		}
+		if (!posicionado)
+			free(nombre_poke);
 	}
 	return true;
 }
@@ -141,10 +134,14 @@ const struct pokemon *pokedex_buscar_pokemon(struct pokedex *pokedex,
 	const struct nodo_pokemon *nodo_actual = pokedex->lista;
 	while (nodo_actual != NULL && !encontrado) {
 		if (strcmp(nodo_actual->poke.nombre, nombre) == 0) {
-			if (pokedex->ultimo_encontrado < contador) {
+			if (pokedex->ultimo_encontrado < contador ||
+			    strcmp(pokedex->nombre_ultimo_encontrado,
+				   nodo_actual->poke.nombre) != 0) {
 				buscado = &(nodo_actual->poke);
 				encontrado = true;
 				pokedex->ultimo_encontrado = contador;
+				pokedex->nombre_ultimo_encontrado =
+					nodo_actual->poke.nombre;
 			}
 		}
 		nodo_actual = nodo_actual->siguiente;

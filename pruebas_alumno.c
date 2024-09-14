@@ -115,7 +115,7 @@ void dosColumnasCuandoLaTercerFuncionEsNula()
 	pa2m_afirmar(funciones[2] == NULL, "La tercera función es NULL");
 	pa2m_afirmar(poke.fuerza == 0,
 		     "el valor original de fuerza no fue cambiado");
-	pa2m_afirmar(columnas == 2, "Se leyo 1 linea con 2 columnas");
+	pa2m_afirmar(columnas == 2, "Se leyó 1 linea con 2 columnas");
 	pa2m_afirmar(linea_leida_bien,
 		     "La linea se leyó y se asignaron los valores");
 	free(poke.nombre);
@@ -144,6 +144,7 @@ void ceroLineasCuandoEsElFinal()
 }
 void seCreaLaPokedex()
 {
+	printf("PRUEBA CREACIÓN POKEDEX \n");
 	struct pokedex *pokedex = pokedex_crear();
 	pa2m_afirmar(pokedex != NULL, "La pokedex se ha creado");
 	pokedex_destruir(pokedex);
@@ -151,6 +152,7 @@ void seCreaLaPokedex()
 
 void seAgregaUnPokemon()
 {
+	printf("PRUEBA AGREGAR UN POKEMON \n");
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke = { .nombre = asignar_nombre("Charmander"),
 				.tipo = TIPO_ELECTRICO,
@@ -165,6 +167,7 @@ void seAgregaUnPokemon()
 
 void seCuentanLosPokemones()
 {
+	printf("PRUEBA CONTEO POKEMONES \n");
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke1 = { .nombre = asignar_nombre("Charmander"),
 				 .tipo = TIPO_ELECTRICO,
@@ -190,8 +193,9 @@ void seCuentanLosPokemones()
 	free(poke2.nombre);
 	pokedex_destruir(pokedex);
 }
-void seEncuentraElPokemonBuscado()
+void seEncuentranTodosLosPokemones()
 {
+	printf("PRUEBA SE ENCUENTRAN TODOS LOS POKEMONES \n");
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke1 = { .nombre = asignar_nombre("Charmander"),
 				 .tipo = TIPO_ELECTRICO,
@@ -208,22 +212,22 @@ void seEncuentraElPokemonBuscado()
 				 .fuerza = 45,
 				 .destreza = 10,
 				 .resistencia = 20 };
-	struct pokemon poke4 = { .nombre = asignar_nombre("uyiouyuio"),
+	struct pokemon poke4 = { .nombre = asignar_nombre("Zapatao"),
 				 .tipo = TIPO_FUEGO,
 				 .fuerza = 45,
 				 .destreza = 10,
 				 .resistencia = 20 };
-	struct pokemon poke5 = { .nombre = asignar_nombre("fdghdfg"),
+	struct pokemon poke5 = { .nombre = asignar_nombre("Ragnarok"),
 				 .tipo = TIPO_FUEGO,
 				 .fuerza = 45,
 				 .destreza = 10,
 				 .resistencia = 20 };
-	struct pokemon poke6 = { .nombre = asignar_nombre("hkljl"),
+	struct pokemon poke6 = { .nombre = asignar_nombre("Loco"),
 				 .tipo = TIPO_FUEGO,
 				 .fuerza = 45,
 				 .destreza = 10,
 				 .resistencia = 20 };
-	struct pokemon poke7 = { .nombre = asignar_nombre("asdfasf"),
+	struct pokemon poke7 = { .nombre = asignar_nombre("Serpentine"),
 				 .tipo = TIPO_FUEGO,
 				 .fuerza = 45,
 				 .destreza = 10,
@@ -235,21 +239,26 @@ void seEncuentraElPokemonBuscado()
 	pokedex_agregar_pokemon(pokedex, poke5);
 	pokedex_agregar_pokemon(pokedex, poke6);
 	pokedex_agregar_pokemon(pokedex, poke7);
-	const struct pokemon *poke8 = pokedex_buscar_pokemon(pokedex, "Algo");
-	pa2m_afirmar(poke8 != NULL, "El pokemon no es NULL");
-	if (poke8 == NULL)
-		return;
+	struct pokemon pokemones[7] = { poke1, poke2, poke3, poke4,
+					poke5, poke6, poke7 };
+	char nombres[7][20] = { "Charmander", "Algo", "Igna",	   "Zapatao",
+				"Ragnarok",   "Loco", "Serpentine" };
 
-	bool son_iguales = false;
-	if (strcmp(poke8->nombre, poke2.nombre) == 0 &&
-	    poke8->tipo == poke2.tipo &&
-	    poke8->resistencia == poke2.resistencia &&
-	    poke8->destreza == poke2.destreza && poke8->fuerza == poke2.fuerza)
-		son_iguales = true;
-	pa2m_afirmar(son_iguales, "Pokemon encontrado");
+	const struct pokemon *poke_encontrado;
 
-	poke8 = pokedex_buscar_pokemon(pokedex, "NOEXISTE");
-	pa2m_afirmar(poke8 == NULL,
+	for (int i = 0; i < 7; i++) {
+		poke_encontrado = pokedex_buscar_pokemon(pokedex, nombres[i]);
+		pa2m_afirmar(poke_encontrado != NULL, "El pokemon no es NULL");
+		if (poke_encontrado == NULL)
+			return;
+		pa2m_afirmar(pokemones_son_iguales(*poke_encontrado,
+						   pokemones[i]),
+			     "Pokemon encontrado");
+	}
+
+	const struct pokemon *no_existe;
+	no_existe = pokedex_buscar_pokemon(pokedex, "NOEXISTE");
+	pa2m_afirmar(no_existe == NULL,
 		     "NULL: no se ha encontrado al pokemon que no existe");
 	free(poke1.nombre);
 	free(poke2.nombre);
@@ -263,6 +272,7 @@ void seEncuentraElPokemonBuscado()
 
 void seMuestranLosPokes()
 {
+	printf("PRUEBA POKEMONES ORDENADOS \n");
 	struct pokedex *pokedex = pokedex_crear();
 	struct pokemon poke1 = { .nombre = asignar_nombre("Charmander"),
 				 .tipo = TIPO_ELECTRICO,
@@ -319,13 +329,13 @@ void seMuestranLosPokes()
 	free(poke5.nombre);
 	free(poke6.nombre);
 	free(poke7.nombre);
-	// printf("")
 	pa2m_afirmar(cep.cantidad_bien == 7,
 		     "Los nombres están ordenados en forma creciente");
 	pokedex_destruir(pokedex);
 }
 void cincoPokesConMismoPunteroaNombre()
 {
+	printf("PRUEBA CINCO POKEMONES CON EL MISMO NOMBRE \n");
 	struct pokedex *pokedex = pokedex_crear();
 
 	char *nombre = calloc(10, sizeof(char));
@@ -390,7 +400,7 @@ int main()
 	seCreaLaPokedex();
 	seAgregaUnPokemon();
 	seCuentanLosPokemones();
-	seEncuentraElPokemonBuscado();
+	seEncuentranTodosLosPokemones();
 	seMuestranLosPokes();
 	cincoPokesConMismoPunteroaNombre();
 	return pa2m_mostrar_reporte();
